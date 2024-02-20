@@ -1,0 +1,44 @@
+use std::str::FromStr;
+use crate::ast::{Expr, Equation};
+
+grammar;
+
+pub Equation: Equation = {
+    <lhs:Var> "=" <rhs:Expr> => Equation::new(lhs, rhs)
+};
+
+pub Expr: Box<Expr> = { 
+    #[precedence(level="0")] // Highest precedence
+    <c:Const> => Box::new(Expr::Const(c)),
+    <v:Var> =>  Box::new(Expr::Var(v)),
+
+    #[precedence(level="1")]
+    "log(" <op1:Expr> "," <op2:Expr> ")" => Box::new(Expr::Log(op1, op2)), 
+    "sin(" <a:Expr>")" => Box::new(Expr::Sin(a)), 
+    "cos(" <a:Expr>")" => Box::new(Expr::Cos(a)), 
+
+    #[precedence(level="2")] #[assoc(side="left")]
+     <op1:Expr> "^" <op2:Expr> => Box::new(Expr::Pow(op1, op2)), 
+
+    #[precedence(level="3")] #[assoc(side="left")]
+    <op1:Expr> "*" <op2:Expr> => Box::new(Expr::Mul(op1, op2)), 
+    <op1:Expr> "/" <op2:Expr> => Box::new(Expr::Div(op1, op2)), 
+
+    #[precedence(level="4")] #[assoc(side="left")]
+    <op1:Expr> "+" <op2:Expr> => Box::new(Expr::Add(op1, op2)), 
+    <op1:Expr> "-" <op2:Expr> => Box::new(Expr::Sub(op1, op2)), 
+
+    #[precedence(level="5")]
+    "(" <e:Expr> ")" => e,
+    "-" <op:Expr> => Box::new(Expr::Neg(op)), 
+
+};
+
+Const: f64 = {
+    r"[0-9]*\.[0-9]+" => f64::from_str(<>).unwrap(),
+    r"[0-9]+" => f64::from_str(<>).unwrap()
+};
+
+Var: String = {
+    r"[a-zA-Z][a-zA-Z0-9]*" => (<>).into(),
+};
