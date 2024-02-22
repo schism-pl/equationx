@@ -1,4 +1,4 @@
-use crate::equation::EquationParser;
+use crate::equation::ExprParser;
 use equations::*;
 use lalrpop_util::lalrpop_mod;
 
@@ -10,7 +10,7 @@ lalrpop_mod!(
 // TODO: allow writing `3*x` as `3x`
 
 fn main() {
-    let s = "x = 3.0 - (2.0 - 1.0)";
-    let eq = EquationParser::new().parse(s).unwrap();
-    println!("{} = {}", eq, eq.eval(2.0));
+    let s = "(1 + 1) * 1 ";
+    let eq = ExprParser::new().parse(s).unwrap();
+    println!("{}", eq);
 }
