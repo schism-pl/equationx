@@ -167,4 +167,13 @@ mod tests {
         let eq = Equation::from_str(s).unwrap();
         assert_eq!(eq.eval(2.0), -2.0)
     }
+
+    #[test]
+    fn to_string() {
+        let s = "x = (y + 1) * (y + 2)";
+        let eq = Equation::from_str(s).unwrap();
+        let s2 = eq.to_string();
+        let eq2 = Equation::from_str(&s2).unwrap();
+        assert_eq!(eq.eval(2.0), eq2.eval(2.0))
+    }
 }
