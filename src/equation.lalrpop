@@ -8,14 +8,19 @@ pub Equation: Equation = {
 };
 
 pub Expr:  Box<Expr> = {
-    <op1:Expr> "+" <op2:Term> => Box::new(Expr::Add(op1, op2)),    
-    <op1:Expr> "-" <op2:Term> => Box::new(Expr::Sub(op1, op2)),     
-    <r:Term> => r,
+    "-" <op:Term0> => Box::new(Expr::Neg(op)),    
+    <r:Term0> => r,
 };
 
-Term: Box<Expr> = {
-    <op1:Term> "*" <op2:Term2> => Box::new(Expr::Mul(op1, op2)),    
-    <op1:Term> "/" <op2:Term2> => Box::new(Expr::Div(op1, op2)), 
+pub Term0:  Box<Expr> = {
+    <op1:Term0> "+" <op2:Term1> => Box::new(Expr::Add(op1, op2)),    
+    <op1:Term0> "-" <op2:Term1> => Box::new(Expr::Sub(op1, op2)),     
+    <r:Term1> => r,
+};
+
+Term1: Box<Expr> = {
+    <op1:Term1> "*" <op2:Term2> => Box::new(Expr::Mul(op1, op2)),    
+    <op1:Term1> "/" <op2:Term2> => Box::new(Expr::Div(op1, op2)), 
     <r:Term2> => r,
 };
 
@@ -33,52 +38,6 @@ Factor: Box<Expr> = {
     "cos(" <a:Expr> ")" => Box::new(Expr::Cos(a)),  
     "(" <e:Expr> ")" => e,
 };
-
-// pub Expr: Box<Expr> = {
-//     #[precedence(level="0")]
-//     <c:Const> => Box::new(Expr::Const(c)),
-//     <v:Var> =>  Box::new(Expr::Var(v)),
-//     "(" <Expr> ")",
-
-//     #[precedence(level="1")] #[assoc(side="left")]  
-//     <op1:Expr> "*" <op2:Expr> => Box::new(Expr::Mul(op1, op2)),
-
-//     #[precedence(level="2")] #[assoc(side="left")]   
-//     <op1:Expr> "+" <op2:Expr> => Box::new(Expr::Add(op1, op2)), 
-// }
-
-// pub Expr: Box<Expr> = { 
-//     #[precedence(level="0")] #[assoc(side="left")]  
-//     <op1:Expr> "*" <op2:Term> => Box::new(Expr::Mul(op1, op2)),
-
-//     #[precedence(level="1")] #[assoc(side="left")]   
-//     <op1:Expr> "+" <op2:Term> => Box::new(Expr::Add(op1, op2)), 
-
-// }
-
-
-// pub Expr: Box<Expr> = { 
-//     #[precedence(level="1")]
-//     "-" <op:Expr> => Box::new(Expr::Neg(op)), 
-
-//     #[precedence(level="2")]
-//     "log(" <a1:Expr> "," <a2:Expr> ")" => Box::new(Expr::Log(a1, a2)), 
-//     "sin(" <a:Expr> ")" => Box::new(Expr::Sin(a)), 
-//     "cos(" <a:Expr> ")" => Box::new(Expr::Cos(a)), 
-
-//     #[precedence(level="4")] #[assoc(side="right")]
-//      <op1:Expr> "^" <op2:Expr> => Box::new(Expr::Pow(op1, op2)), 
-
-//     #[precedence(level="5")] #[assoc(side="left")]
-//     <op1:Expr> "*" <op2:Expr> => Box::new(Expr::Mul(op1, op2)), 
-//     <op1:Expr> "/" <op2:Expr> => Box::new(Expr::Div(op1, op2)), 
-
-//     #[precedence(level="6")] #[assoc(side="left")]
-//     <op1:Expr> "+" <op2:Expr> => Box::new(Expr::Add(op1, op2)), 
-//     <op1:Expr> "-" <op2:Expr> => Box::new(Expr::Sub(op1, op2)), 
-
-
-// };
 
 Const: f64 = {
     r"[0-9]*\.?[0-9]+" => f64::from_str(<>).unwrap(),

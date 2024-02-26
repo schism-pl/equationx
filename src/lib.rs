@@ -144,24 +144,24 @@ mod tests {
         assert_eq!(eq.eval(2.0), 4.0)
     }
 
-    // #[test]
-    // fn neg1() {
-    //     let s = "x = -1.0";
-    //     let eq = EquationParser::new().parse(s).unwrap();
-    //     assert_eq!(eq.eval(4.0), -1.0)
-    // }
+    #[test]
+    fn neg1() {
+        let s = "x = -1.0";
+        let eq = EquationParser::new().parse(s).unwrap();
+        assert_eq!(eq.eval(4.0), -1.0)
+    }
 
-    // #[test]
-    // fn neg2() {
-    //     let s = "x = -(y + 1)";
-    //     let eq = EquationParser::new().parse(s).unwrap();
-    //     assert_eq!(eq.eval(2.0), -3.0)
-    // }
+    #[test]
+    fn neg2() {
+        let s = "x = -(y + 1)";
+        let eq = EquationParser::new().parse(s).unwrap();
+        assert_eq!(eq.eval(2.0), -3.0)
+    }
 
-    // #[test]
-    // fn neg3() {
-    //     let s = "x = -(y)";
-    //     let eq = EquationParser::new().parse(s).unwrap();
-    //     assert_eq!(eq.eval(2.0), -2.0)
-    // }
+    #[test]
+    fn neg3() {
+        let s = "x = -(y)";
+        let eq = EquationParser::new().parse(s).unwrap();
+        assert_eq!(eq.eval(2.0), -2.0)
+    }
 }
