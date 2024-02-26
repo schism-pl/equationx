@@ -9,4 +9,6 @@ edition = "2021"
 lalrpop = "0.20.0"
 
 [dependencies]
+anyhow = "1.0.80"
 lalrpop-util = { version = "0.20.0", features = ["lexer", "regex", "unicode"] }
+serde = "1.0.197"

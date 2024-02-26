@@ -1,7 +1,10 @@
 pub mod ast;
 
+use crate::ast::Equation;
 use equation::*;
 use lalrpop_util::lalrpop_mod;
+use std::str::FromStr;
+// use lalrpop_util::ParseError;
 
 lalrpop_mod!(
     #[allow(unused)]
@@ -9,6 +12,37 @@ lalrpop_mod!(
 );
 
 // TODO: use approx for tests
+
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+impl Serialize for Equation {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
+    }
+}
+
+impl FromStr for Equation {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> anyhow::Result<Self> {
+        EquationParser::new()
+            .parse(s)
+            .map_err(|e| anyhow::anyhow!("{}", e))
+    }
+}
+
+// impl<'de> Deserialize<'de> for Equation {
+//     fn deserialize<D>(deserializer: D) -> Result<Equation, D::Error>
+//     where
+//         D: Deserializer<'de>,
+//     {
+//         D::from_str()
+
+//     }
+// }
 
 #[cfg(test)]
 mod tests {
