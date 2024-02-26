@@ -1,9 +1,6 @@
 // currently handles single variable equations
 // TODO: minimize dependencies
 
-// TODO: parser -- make sure that parser handles order of operations correctly
-// TODO: parser -- handle capitilization and Id
-
 use std::fmt;
 
 pub struct Equation {
