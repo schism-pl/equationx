@@ -1,6 +1,6 @@
 pub mod ast;
 
-pub use crate::ast::Equation;
+pub use crate::ast::{Equation, Expr};
 use equation::*;
 
 use lalrpop_util::lalrpop_mod;
@@ -35,6 +35,36 @@ impl FromStr for Equation {
 }
 
 impl<'de> Deserialize<'de> for Equation {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        FromStr::from_str(&s).map_err(de::Error::custom)
+    }
+}
+
+impl Serialize for Expr {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
+    }
+}
+
+impl FromStr for Expr {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> anyhow::Result<Self> {
+        ExprParser::new()
+            .parse(s)
+            .map_err(|e| anyhow::anyhow!("{}", e))
+            .map(|b| *b) // Box<Expr> -> Expr
+    }
+}
+
+impl<'de> Deserialize<'de> for Expr {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
