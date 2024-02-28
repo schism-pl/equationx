@@ -3,6 +3,7 @@
 
 use std::fmt;
 
+#[derive(Clone)]
 pub struct Equation {
     lhs: String,
     rhs: Box<Expr>,
@@ -24,6 +25,7 @@ impl fmt::Display for Equation {
     }
 }
 
+#[derive(Clone)]
 pub enum Expr {
     Const(f64),
     Var(String),
