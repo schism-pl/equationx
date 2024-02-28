@@ -1,6 +1,6 @@
 pub mod ast;
 
-use crate::ast::Equation;
+pub use crate::ast::Equation;
 use equation::*;
 
 use lalrpop_util::lalrpop_mod;
