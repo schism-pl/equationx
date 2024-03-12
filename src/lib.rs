@@ -74,6 +74,13 @@ impl<'de> Deserialize<'de> for Expr {
     }
 }
 
+#[macro_export]
+macro_rules! eqn {
+    ($e: expr) => {
+        stringify!($e)
+    };
+}
+
 #[cfg(test)]
 mod tests {
     use crate::{ast::Equation, Expr};
@@ -221,5 +228,19 @@ mod tests {
         let eq = Expr::from_str(s).unwrap();
         let s2 = eq.to_rust();
         assert_eq!(s2, "x.cos().sin()")
+    }
+
+    #[test]
+    fn eqn_macro_1() {
+        let s = eqn!(sin(cos(x)));
+        let eq = Expr::from_str(s).unwrap();
+        assert_eq!(s, "sin(cos(x))")
+    }
+
+    #[test]
+    fn eqn_macro_2() {
+        let s = eqn!(x ^ 2 ^ 3);
+        let eq = Expr::from_str(s).unwrap();
+        assert_eq!(s, "x ^ 2 ^ 3")
     }
 }
