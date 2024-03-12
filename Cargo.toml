@@ -9,9 +9,9 @@ readme = "README.md"
 description = "Library for parsing and evaluating simple mathematical expressions/equations "
 
 [build-dependencies] 
-lalrpop = "0.20.0"
+lalrpop = "0.20.2"
 
 [dependencies]
 anyhow = "1.0.80"
-lalrpop-util = { version = "0.20.0", features = ["lexer", "regex", "unicode"] }
+lalrpop-util = { version = "0.20.2", features = ["lexer", "unicode"] }
 serde = "1.0.197"
