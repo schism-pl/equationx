@@ -15,7 +15,7 @@ lalrpop_mod!(
 
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 
-impl Serialize for Equation {
+impl Serialize for Equation<f64> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -24,7 +24,7 @@ impl Serialize for Equation {
     }
 }
 
-impl FromStr for Equation {
+impl FromStr for Equation<f64> {
     type Err = anyhow::Error;
 
     fn from_str(s: &str) -> anyhow::Result<Self> {
@@ -34,7 +34,7 @@ impl FromStr for Equation {
     }
 }
 
-impl<'de> Deserialize<'de> for Equation {
+impl<'de> Deserialize<'de> for Equation<f64> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
@@ -44,7 +44,7 @@ impl<'de> Deserialize<'de> for Equation {
     }
 }
 
-impl Serialize for Expr {
+impl Serialize for Expr<f64> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -53,7 +53,7 @@ impl Serialize for Expr {
     }
 }
 
-impl FromStr for Expr {
+impl FromStr for Expr<f64> {
     type Err = anyhow::Error;
 
     fn from_str(s: &str) -> anyhow::Result<Self> {
@@ -64,7 +64,7 @@ impl FromStr for Expr {
     }
 }
 
-impl<'de> Deserialize<'de> for Expr {
+impl<'de> Deserialize<'de> for Expr<f64> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,

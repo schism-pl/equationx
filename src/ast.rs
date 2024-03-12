@@ -4,13 +4,13 @@
 use std::fmt;
 
 #[derive(Clone)]
-pub struct Equation {
+pub struct Equation<T> {
     lhs: String,
-    rhs: Box<Expr>,
+    rhs: Box<Expr<T>>,
 }
 
-impl Equation {
-    pub fn new(lhs: String, rhs: Box<Expr>) -> Self {
+impl Equation<f64> {
+    pub fn new(lhs: String, rhs: Box<Expr<f64>>) -> Self {
         Self { lhs, rhs }
     }
 
@@ -19,30 +19,30 @@ impl Equation {
     }
 }
 
-impl fmt::Display for Equation {
+impl fmt::Display for Equation<f64> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{} = {}", self.lhs, self.rhs)
     }
 }
 
 #[derive(Clone)]
-pub enum Expr {
-    Const(f64),
+pub enum Expr<T> {
+    Const(T),
     Var(String),
-    Add(Box<Expr>, Box<Expr>),
-    Sub(Box<Expr>, Box<Expr>),
-    Mul(Box<Expr>, Box<Expr>),
-    Div(Box<Expr>, Box<Expr>),
-    Pow(Box<Expr>, Box<Expr>),
-    Log(Box<Expr>, Box<Expr>),
-    Neg(Box<Expr>),
-    Sin(Box<Expr>),
-    Cos(Box<Expr>),
+    Add(Box<Expr<T>>, Box<Expr<T>>),
+    Sub(Box<Expr<T>>, Box<Expr<T>>),
+    Mul(Box<Expr<T>>, Box<Expr<T>>),
+    Div(Box<Expr<T>>, Box<Expr<T>>),
+    Pow(Box<Expr<T>>, Box<Expr<T>>),
+    Log(Box<Expr<T>>, Box<Expr<T>>),
+    Neg(Box<Expr<T>>),
+    Sin(Box<Expr<T>>),
+    Cos(Box<Expr<T>>),
 }
 
 // TODO: special constants pi & e (in parse)
 
-impl Expr {
+impl Expr<f64> {
     pub fn eval(&self, arg: f64) -> f64 {
         use Expr::*;
         match self {
@@ -78,7 +78,7 @@ impl Expr {
     }
 }
 
-impl fmt::Display for Expr {
+impl fmt::Display for Expr<f64> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         use Expr::*;
         let s = match self {

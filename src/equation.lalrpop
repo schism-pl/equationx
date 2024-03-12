@@ -3,34 +3,34 @@ use crate::ast::{Expr, Equation};
 
 grammar;
 
-pub Equation: Equation = {
+pub Equation: Equation<f64> = {
     <lhs:Var> "=" <rhs:Expr> => Equation::new(lhs, rhs)
 };
 
-pub Expr:  Box<Expr> = {
+pub Expr:  Box<Expr<f64>> = {
     "-" <op:Term0> => Box::new(Expr::Neg(op)),    
     <r:Term0> => r,
 };
 
-pub Term0:  Box<Expr> = {
+pub Term0:  Box<Expr<f64>> = {
     <op1:Term0> "+" <op2:Term1> => Box::new(Expr::Add(op1, op2)),    
     <op1:Term0> "-" <op2:Term1> => Box::new(Expr::Sub(op1, op2)),     
     <r:Term1> => r,
 };
 
-Term1: Box<Expr> = {
+Term1: Box<Expr<f64>> = {
     <op1:Term1> "*" <op2:Term2> => Box::new(Expr::Mul(op1, op2)),    
     <op1:Term1> "/" <op2:Term2> => Box::new(Expr::Div(op1, op2)), 
     <r:Term2> => r,
 };
 
-Term2: Box<Expr> = {
+Term2: Box<Expr<f64>> = {
     <op1:Factor> "^" <op2:Term2> => Box::new(Expr::Pow(op1, op2)), 
     <r:Factor> => r,
 };
 
 
-Factor: Box<Expr> = {
+Factor: Box<Expr<f64>> = {
     <v:Var> =>  Box::new(Expr::Var(v)),
     <c:Const> => Box::new(Expr::Const(c)),   
     "log(" <a1:Expr> "," <a2:Expr> ")" => Box::new(Expr::Log(a1, a2)), 
