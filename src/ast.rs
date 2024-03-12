@@ -59,6 +59,23 @@ impl Expr {
             Cos(op) => op.eval(arg).cos(),
         }
     }
+
+    pub fn to_rust(&self) -> String {
+        use Expr::*;
+        match self {
+            Const(c) => format!("{}_f64", c),
+            Var(s) => s.to_owned(),
+            Add(op1, op2) => format!("({} + {})", op1.to_rust(), op2.to_rust()),
+            Sub(op1, op2) => format!("({} - {})", op1.to_rust(), op2.to_rust()),
+            Mul(op1, op2) => format!("({} * {})", op1.to_rust(), op2.to_rust()),
+            Div(op1, op2) => format!("({} / {})", op1.to_rust(), op2.to_rust()),
+            Pow(op1, op2) => format!("{}.powf({})", op1.to_rust(), op2.to_rust()),
+            Log(op1, op2) => format!("{}.log({})", op1.to_rust(), op2.to_rust()),
+            Neg(op) => format!("-{}", op.to_rust()),
+            Sin(op) => format!("{}.sin()", op.to_rust()),
+            Cos(op) => format!("{}.cos()", op.to_rust()),
+        }
+    }
 }
 
 impl fmt::Display for Expr {

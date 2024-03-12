@@ -76,7 +76,7 @@ impl<'de> Deserialize<'de> for Expr {
 
 #[cfg(test)]
 mod tests {
-    use crate::ast::Equation;
+    use crate::{ast::Equation, Expr};
     use std::str::FromStr;
 
     #[test]
@@ -205,5 +205,21 @@ mod tests {
         let s2 = eq.to_string();
         let eq2 = Equation::from_str(&s2).unwrap();
         assert_eq!(eq.eval(2.0), eq2.eval(2.0))
+    }
+
+    #[test]
+    fn to_rust_string_1() {
+        let s = "(y + 1) * (y + 2)";
+        let eq = Expr::from_str(s).unwrap();
+        let s2 = eq.to_rust();
+        assert_eq!(s2, "((y + 1_f64) * (y + 2_f64))")
+    }
+
+    #[test]
+    fn to_rust_string_2() {
+        let s = "sin(cos(x))";
+        let eq = Expr::from_str(s).unwrap();
+        let s2 = eq.to_rust();
+        assert_eq!(s2, "x.cos().sin()")
     }
 }
