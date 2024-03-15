@@ -1,4 +1,7 @@
 pub mod ast;
+pub mod fixed_point;
+pub mod floating_point;
+pub mod util;
 
 pub use crate::ast::{Equation, Expr};
 use equation::*;
