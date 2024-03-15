@@ -1,6 +1,7 @@
 use fixed::{types::extra::LeEqU64, FixedI64};
 use crate::ast::{Equation, Expr};
 use cordic::CordicNumber;
+//use util::{cordic_log, cordic_powf};
 
 pub trait CordicMarker {}
 impl<Frac> CordicMarker for fixed::FixedI8<Frac> {}
@@ -18,8 +19,8 @@ impl<T: CordicNumber + CordicMarker> Expr<T> {
             Sub(op1, op2) => op1.eval(arg) - op2.eval(arg),
             Mul(op1, op2) => op1.eval(arg) * op2.eval(arg),
             Div(op1, op2) => op1.eval(arg) / op2.eval(arg),
-            Pow(op1, op2) => op1.eval(arg).powf(op2.eval(arg)),
-            Log(op1, op2) => op1.eval(arg).log(op2.eval(arg)),
+            Pow(op1, op2) => unimplemented!(),//cordic_powf(op1.eval(arg), op2.eval(arg)),
+            Log(op1, op2) => unimplemented!(),//cordic_log(op1.eval(arg), op2.eval(arg)),
             Neg(op) => -op.eval(arg),
             Sin(op) => cordic::sin(op.eval(arg)),
             Cos(op) => cordic::cos(op.eval(arg)),
