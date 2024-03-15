@@ -1,4 +1,94 @@
-use crate::ast::{Equation, Expr};
+use crate::ast::{CaseCondition, Equation, Expr, Openness, Piecewise};
+use anyhow::{anyhow, Result};
+
+impl Piecewise<f64> {
+    pub fn well_formed(&self) -> Result<()> {
+        if self.cases.len() == 0 {
+            return Err(anyhow!("Malformed piecewise function: missing any cases"));
+        }
+
+        let mut last_high = f64::NEG_INFINITY;
+        let mut last_openness = Openness::Open;
+        for cond in &self.cases[..self.cases.len() - 1] {
+            if let CaseCondition::Interval(i) = &cond.0 {
+                match i.low_openness {
+                    Openness::Open => {
+                        if i.low_val < last_high {
+                            return Err(anyhow!(format!(
+                                "Malformed piecewise function: overlapping interval {}",
+                                i
+                            )
+                            .to_string()));
+                        }
+                    }
+                    Openness::Closed => match last_openness {
+                        Openness::Closed => {
+                            if i.low_val <= last_high {
+                                return Err(anyhow!(format!(
+                                    "Malformed piecewise function: overlapping interval {}",
+                                    i
+                                )
+                                .to_string()));
+                            }
+                        }
+                        Openness::Open => {
+                            if i.low_val < last_high {
+                                return Err(anyhow!(format!(
+                                    "Malformed piecewise function: overlapping interval {}",
+                                    i
+                                )
+                                                   .to_string()));
+                            }
+                        }
+                    },
+                }
+
+                last_high = i.high_val;
+                last_openness = i.high_openness;
+            } else {
+                return Err(anyhow!("Malformed piecewise function: \"otherwise\" should only be the last piecewise case"));
+            }
+        }
+
+        if self.cases[self.cases.len() - 1].0 != CaseCondition::Otherwise {
+            return Err(anyhow!("Malformed piecewise function: the last csaes should always be \"otherwise\""));
+        }
+
+        Ok(())
+    }
+
+    pub fn eval(&self, arg: f64) -> f64 {
+        for case in &self.cases[..self.cases.len() - 1] {
+            if let CaseCondition::Interval(i) = &case.0 {
+                match (i.low_openness, i.high_openness) {
+                    (Openness::Closed, Openness::Closed) => {
+                        if arg >= i.low_val && arg <= i.high_val {
+                            return case.1.eval(arg);
+                        }
+                    }
+                    (Openness::Closed, Openness::Open) => {
+                        if arg >= i.low_val && arg < i.high_val {
+                            return case.1.eval(arg);
+                        }
+                    }
+                    (Openness::Open, Openness::Closed) => {
+                        if arg > i.low_val && arg <= i.high_val {
+                            return case.1.eval(arg);
+                        }
+                    }
+                    (Openness::Open, Openness::Open) => {
+                        if arg > i.low_val && arg < i.high_val {
+                            return case.1.eval(arg);
+                        }
+                    }
+                }
+            }
+        }
+
+        // fall through to default case
+        self.cases[self.cases.len() - 1].1.eval(arg)
+    }
+}
 
 impl Equation<f64> {
     pub fn eval(&self, arg: f64) -> f64 {

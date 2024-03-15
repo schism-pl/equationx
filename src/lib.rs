@@ -4,6 +4,7 @@ pub mod floating_point;
 pub mod util;
 
 pub use crate::ast::{Equation, Expr};
+use ast::{CaseCondition, Interval, Piecewise};
 use equation::*;
 
 use lalrpop_util::lalrpop_mod;
@@ -17,6 +18,94 @@ lalrpop_mod!(
 // TODO: use approx for tests
 
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
+
+// TODO: Make all these trait implementations macros
+impl Serialize for CaseCondition<f64> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
+    }
+}
+
+impl FromStr for CaseCondition<f64> {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> anyhow::Result<Self> {
+        CaseConditionParser::new()
+            .parse(s)
+            .map_err(|e| anyhow::anyhow!("{}", e))
+    }
+}
+
+impl<'de> Deserialize<'de> for CaseCondition<f64> {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        FromStr::from_str(&s).map_err(de::Error::custom)
+    }
+}
+
+impl Serialize for Interval<f64> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
+    }
+}
+
+impl FromStr for Interval<f64> {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> anyhow::Result<Self> {
+        IntervalParser::new()
+            .parse(s)
+            .map_err(|e| anyhow::anyhow!("{}", e))
+    }
+}
+
+impl<'de> Deserialize<'de> for Interval<f64> {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        FromStr::from_str(&s).map_err(de::Error::custom)
+    }
+}
+
+impl Serialize for Piecewise<f64> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
+    }
+}
+
+impl FromStr for Piecewise<f64> {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> anyhow::Result<Self> {
+        PiecewiseParser::new()
+            .parse(s)
+            .map_err(|e| anyhow::anyhow!("{}", e))
+    }
+}
+
+impl<'de> Deserialize<'de> for Piecewise<f64> {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        FromStr::from_str(&s).map_err(de::Error::custom)
+    }
+}
 
 impl Serialize for Equation<f64> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -86,7 +175,10 @@ macro_rules! eqn {
 
 #[cfg(test)]
 mod tests {
-    use crate::{ast::Equation, Expr};
+    use crate::{
+        ast::{CaseCondition, Equation, Interval, Openness, Piecewise},
+        Expr,
+    };
     use std::str::FromStr;
 
     #[test]
@@ -245,5 +337,41 @@ mod tests {
         let s = eqn!(x ^ 2 ^ 3);
         let eq = Expr::from_str(s).unwrap();
         assert_eq!(s, "x ^ 2 ^ 3")
+    }
+
+    #[test]
+    fn piecewise_single() {
+        let s = "y = {x + 1 if [-5, 5), x + 2 if [5, 10)}";
+        let peq = Piecewise::from_str(s).unwrap();
+        let cases = vec![
+            (
+                CaseCondition::Interval(Interval::new(-5, 5, Openness::Closed, Openness::Open)),
+                Box::new(Expr::Add(
+                    Box::new(Expr::Var("x".to_string())),
+                    Box::new(Expr::Const(1)),
+                )),
+            ),
+            (
+                CaseCondition::Interval(Interval::new(5, 10, Openness::Closed, Openness::Open)),
+                Box::new(Expr::Add(
+                    Box::new(Expr::Var("x".to_string())),
+                    Box::new(Expr::Const(2)),
+                )),
+            ),
+        ];
+        let expected = Piecewise::new("y".to_string(), cases);
+        assert_eq!(peq.to_string(), expected.to_string());
+    }
+
+    #[test]
+    fn piecewise_eval() {
+        let s = "y = {x + 1 if [-5, 5), x + 2 if [5, 10), x if otherwise}";
+        let peq = Piecewise::from_str(s).unwrap();
+        assert!(peq.well_formed().is_ok());
+        assert_eq!(peq.eval(0.0), 1.0);
+        assert_eq!(peq.eval(5.0), 7.0);
+        assert_eq!(peq.eval(-5.0), -4.0);
+        assert_eq!(peq.eval(-10.0), -10.0);
+        assert_eq!(peq.eval(20.0), 20.0);
     }
 }

@@ -1,18 +1,48 @@
 use std::str::FromStr;
-use crate::ast::{Expr, Equation};
+use crate::ast::{Expr, Equation, Piecewise, CaseCondition, Interval, Openness};
 
 grammar;
+
+pub Piecewise: Piecewise<f64> = {
+    <lhs:Var> "=" "{" <mut cs:(<Case> ",")*> <c:Case> "}" => {
+        cs.push(c);
+        Piecewise::new(lhs, cs)
+    },
+};
+
+pub Case: (CaseCondition<f64>, Box<Expr<f64>>) = {
+    <e:Expr> "if" <c:CaseCondition> => (c, e),
+};
+
+pub CaseCondition: CaseCondition<f64> = {
+    "otherwise" => CaseCondition::Otherwise,
+    <i:Interval> => CaseCondition::Interval(i),
+}
+
+pub Interval: Interval<f64> = {
+    <o1:LeftOpenness> <v1:Const> "," <v2:Const> <o2:RightOpenness> => Interval::new(v1, v2, o1, o2),
+};
+
+pub LeftOpenness: Openness = {
+    "(" => Openness::Open,
+    "[" => Openness::Closed,
+};
+
+pub RightOpenness: Openness = {
+    ")" => Openness::Open,
+    "]" => Openness::Closed,
+};
 
 pub Equation: Equation<f64> = {
     <lhs:Var> "=" <rhs:Expr> => Equation::new(lhs, rhs)
 };
 
-pub Expr:  Box<Expr<f64>> = {
+pub Expr: Box<Expr<f64>> = {
     "-" <op:Term0> => Box::new(Expr::Neg(op)),    
     <r:Term0> => r,
 };
 
-pub Term0:  Box<Expr<f64>> = {
+pub Term0: Box<Expr<f64>> = {
     <op1:Term0> "+" <op2:Term1> => Box::new(Expr::Add(op1, op2)),    
     <op1:Term0> "-" <op2:Term1> => Box::new(Expr::Sub(op1, op2)),     
     <r:Term1> => r,
@@ -40,7 +70,7 @@ Factor: Box<Expr<f64>> = {
 };
 
 Const: f64 = {
-    r"[0-9]*\.?[0-9]+" => f64::from_str(<>).unwrap(),
+    r"-?[0-9]*\.?[0-9]+" => f64::from_str(<>).unwrap(),
 };
 
 Var: String = {
